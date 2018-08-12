@@ -11,7 +11,10 @@
     "baseUrl": "src",
     "strict": true,
     "isolatedModules": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "importHelpers": true,
+    "newLine": "LF"
   },
   "exclude": [
     "node_modules",
