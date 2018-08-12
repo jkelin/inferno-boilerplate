@@ -1,5 +1,5 @@
-import { createStore, combineReducers } from "redux";
-import { FormState, reducer as formReducer } from "redux-form";
+import { createStore, combineReducers, Store } from 'redux';
+import { FormState, reducer as reduxFormReducer } from 'redux-form';
 
 export interface Action<T> {
   type: string;
@@ -11,9 +11,9 @@ export interface CustomState {
   name?: string;
 }
 
-const reducer = function(state: CustomState = {}, action: Action<any>) {
+const customReducer = function (state: CustomState = {}, action: Action<any>) {
   switch (action.type) {
-    case 'CHANGE_NAME':    
+    case 'CHANGE_NAME':
       return {
         ...state,
         name: action.payload.name
@@ -26,17 +26,25 @@ const reducer = function(state: CustomState = {}, action: Action<any>) {
   }
 };
 
-interface RootState {
+export interface RootState {
   custom: CustomState;
   form: FormState;
 }
 
-const rootReducer = combineReducers({
-  custom: reducer,
-  form: formReducer
-})
+export type RootStore = Store<RootState, any>;
 
-export const store = createStore(
-  rootReducer,
-  process.env.NODE_ENV === 'development' && (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__()
-);
+export function generateStore() {
+  console.debug('Generating store');
+
+  const rootReducer = combineReducers({
+    custom: customReducer,
+    form: reduxFormReducer
+  });
+
+  const store = createStore(
+    rootReducer,
+    process.env.NODE_ENV === 'development' && (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__()
+  );
+
+  return store as any as RootStore;
+}

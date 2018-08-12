@@ -1,8 +1,8 @@
-import { Component, SFC } from "inferno";
+import { Component, SFC } from 'inferno';
 import { Provider, connect } from 'inferno-redux';
-import { createStore } from "redux";
-import { Dispatch } from "./store";
-import AwsumForm from "./AwsumForm";
+import { createStore } from 'redux';
+import { Dispatch, RootStore } from './store';
+import AwsumForm from './AwsumForm';
 
 const FailingButton = () => <button onClick={() => (undefined as any).x.y.z}>Throw error!</button>;
 const ReduxButton = connect(
@@ -12,7 +12,7 @@ const ReduxButton = connect(
   (props: { action: () => any }) => <button onClick={props.action}>Redux!</button>
 ) as any;
 
-export const Root: SFC<{ store: any }> = (props) => (
+export const Root: SFC<{ store: RootStore }> = props => (
   <Provider store={props.store}>
     <div class="hello">
       hello world
