@@ -1,5 +1,4 @@
 import { createStore, combineReducers, Store } from 'redux';
-import { FormState, reducer as reduxFormReducer } from 'redux-form';
 
 export interface Action<T> {
   type: string;
@@ -28,7 +27,6 @@ const customReducer = function (state: CustomState = {}, action: Action<any>) {
 
 export interface RootState {
   custom: CustomState;
-  form: FormState;
 }
 
 export type RootStore = Store<RootState, any>;
@@ -38,7 +36,6 @@ export function generateStore() {
 
   const rootReducer = combineReducers({
     custom: customReducer,
-    form: reduxFormReducer
   });
 
   const store = createStore(
