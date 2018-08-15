@@ -1,6 +1,5 @@
 import { Component, SFC } from 'inferno';
 import { Provider, connect } from 'inferno-redux';
-import { createStore } from 'redux';
 import { Dispatch, RootStore } from './store';
 import AwsumForm from './AwsumForm';
 

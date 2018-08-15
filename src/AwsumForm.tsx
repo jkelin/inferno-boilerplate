@@ -12,8 +12,7 @@ interface FormData {
 class AwsumForm extends Component<FormikProps<FormData>> {
   render() {
     return (
-      <form onSubmit={this.props.handleSubmit as any}>
-        hello worldsssss
+      <form onSubmit={this.props.handleSubmit}>
         <Field component="input" type="text" name="tb" />
         <button type="submit" class={styles.test} >Submit!</button>
       </form>

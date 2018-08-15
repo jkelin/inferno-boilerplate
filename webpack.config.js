@@ -7,6 +7,8 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 
 const prod = process.env.NODE_ENV === 'production' || undefined;
 const paths = {
@@ -35,7 +37,8 @@ module.exports = {
       'inferno': prod ? path.resolve(__dirname, 'node_modules/inferno/index.esm.js') : path.resolve(__dirname, 'node_modules/inferno/dist/index.dev.esm.js'),
       'react': 'inferno-compat',
       'react-dom': 'inferno-compat',
-      'react-redux': 'inferno-redux'
+      'react-redux': 'inferno-redux',
+      'lodash': 'lodash-es',
     }
   },
 
@@ -108,6 +111,7 @@ module.exports = {
             loader: 'babel-loader',
             options: {
               'plugins': [
+                'lodash',
                 ['babel-plugin-inferno', {'imports': true}],
               ]
             }
@@ -134,7 +138,11 @@ module.exports = {
     // new webpack.ProvidePlugin({
     //   'react-lifecycles-compat': path.resolve(paths.src, 'shim.js')
     // }),
+
+    new LodashModuleReplacementPlugin(),
+
     new HtmlWebpackPlugin({
+      inject: true,
       template: 'ejs-loader!' + path.resolve(paths.src, 'index.ejs'),
       NODE_ENV: process.env.NODE_ENV
     }),
@@ -147,6 +155,9 @@ module.exports = {
       chunkFilename: prod && 'static/css/[name].[chunkhash:8].chunk.css',
     }),
     // prod && new PreloadWebpackPlugin(),
+
+    new HardSourceWebpackPlugin(),
+
     !prod && new webpack.HotModuleReplacementPlugin(),
   ].filter(Boolean),
 
