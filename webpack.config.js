@@ -5,9 +5,10 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 // const PreloadWebpackPlugin = require('preload-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
-const prod = process.env.NODE_ENV === 'production';
+const prod = process.env.NODE_ENV === 'production' || undefined;
 const paths = {
   src: path.resolve(__dirname, 'src'),
   dist: path.resolve(__dirname, 'dist'),
@@ -55,25 +56,48 @@ module.exports = {
           /\.png$/,
           /\.md$/,
         ],
-        loader: [require.resolve('file-loader')],
-        // options: {
-        //   name: 'static/media/[name].[hash:8].[ext]',
-        // },
+        loader: 'file-loader',
+        options: {
+          name: prod && 'static/media/[name].[hash:8].[ext]',
+        },
       },
       {
         test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-        loader: [require.resolve('url-loader')],
-        // options: {
-        //   limit: 10000,
-        //   name: 'static/media/[name].[hash:8].[ext]',
-        // },
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: prod && 'static/media/[name].[hash:8].[ext]',
+        },
       },
       {
         test:/\.(less|css)$/,
         use:[
           prod ? MiniCssExtractPlugin.loader : 'style-loader',
-          'css-loader',
-          'less-loader'
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true,
+              sourceMap: true,
+              localIdentName: prod ? '[hash:base58:4]' : '[local]--[path][name]',
+              importLoaders: 2
+            }
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true,
+              plugins: [
+                require('autoprefixer')(),
+                prod && require('cssnano')(),
+              ].filter(Boolean)
+            }
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              sourceMap: true
+            }
+          }
         ]
       },
       {
@@ -83,19 +107,13 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
-              "plugins": [["babel-plugin-inferno", {"imports": true}]]
+              'plugins': [
+                ['babel-plugin-inferno', {'imports': true}],
+              ]
             }
           },
-          // { loader: 'cache-loader' },
-          // {
-          //   loader: 'thread-loader',
-          //   options: {
-          //       // there should be 1 cpu for the fork-ts-checker-webpack-plugin
-          //       workers: require('os').cpus().length - 1,
-          //   },
-          // },
           {
-            loader: "ts-loader",
+            loader: 'ts-loader',
             options: {
               transpileOnly: !prod,
               experimentalWatchApi: true,
@@ -107,6 +125,8 @@ module.exports = {
   },
 
   plugins: [
+    prod && new CleanWebpackPlugin(path.join(paths.dist, '*')),
+
     !prod && new ForkTsCheckerWebpackPlugin({
       tslint: true,
       checkSyntacticErrors: true
@@ -118,14 +138,17 @@ module.exports = {
       template: 'ejs-loader!' + path.resolve(paths.src, 'index.ejs'),
       NODE_ENV: process.env.NODE_ENV
     }),
-    !prod && new webpack.HotModuleReplacementPlugin(),
-    process.env.WEBPACK_ANALYZE && new BundleAnalyzerPlugin({analyzerMode: 'static', generateStatsFile: true}),
+    process.env.WEBPACK_ANALYZE && new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      generateStatsFile: true
+    }),
     prod && new MiniCssExtractPlugin({
-      filename: prod && 'static/css/[name].[chunkhash:8].css' || undefined,
-      chunkFilename: prod && 'static/css/[name].[chunkhash:8].chunk.css' || undefined,
+      filename: prod && 'static/css/[name].[chunkhash:8].css',
+      chunkFilename: prod && 'static/css/[name].[chunkhash:8].chunk.css',
     }),
     // prod && new PreloadWebpackPlugin(),
-  ],
+    !prod && new webpack.HotModuleReplacementPlugin(),
+  ].filter(Boolean),
 
   optimization: {
     minimizer: [new TerserPlugin({
@@ -155,6 +178,3 @@ module.exports = {
     stats: 'errors-only'
   }
 };
-
-
-module.exports.plugins = module.exports.plugins.filter(Boolean);
