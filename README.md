@@ -8,7 +8,7 @@ Just another SPA boilerplate. Focus semi fast builds, output size and performanc
 
 | Task  | Library  |
 | ------------ | ------------ |
-| Build  | [Webpack 4](http://https://webpack.js.org/ "Webpack")  |
+| Build  | [Webpack 4](https://webpack.js.org/ "Webpack")  |
 | Compile  | [Typescript 3](https://www.typescriptlang.org/), [Babel 6](https://babeljs.io/)  |
 | Style  | [Less](http://lesscss.org/), [CSS Modules](https://github.com/css-modules/css-modules)  |
 | Render  | [Inferno 5](https://github.com/infernojs/inferno)  |
